@@ -1,22 +1,14 @@
 server:
-  port: 8080
-  error:
-    whitelabel:
-      enabled: true
+  port: 8082
 
 spring:
-  sql:
-    init:
-      platform: mysql
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/loltournament?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-    username: root
-    password: R3l14bl3$3cur1ty!
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/order_db
+    username: user
+    password: password
   jpa:
     hibernate:
-      ddl-auto: none
-    show-sql: false
-    database: mysql
-    database-platform: org.hibernate.dialect.MySQL8Dialect
-    generate-ddl: true
+      ddl-auto: validate
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
