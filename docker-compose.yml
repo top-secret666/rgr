@@ -1,21 +1,69 @@
-
 version: '3.8'
 
 services:
-  postgres:
-    image: postgres:14-alpine
-    container_name: my_postgres_db
+  zookeeper:
+    # ИСПРАВЛЕНО: Версия зафиксирована для стабильности
+    image: confluentinc/cp-zookeeper:7.3.0
+    container_name: zookeeper
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password # Убедитесь, что этот пароль совпадает с паролем в application.properties
-      POSTGRES_DB: user-db # Это создаст базу данных с таким именем при первом запуске
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafka:
+    # ИСПРАВЛЕНО: Версия зафиксирована для стабильности
+    image: confluentinc/cp-kafka:7.3.0
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  user-db:
+    image: postgres:14
+    container_name: user-db
     ports:
       - "5432:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: user_db
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    restart: unless-stopped
+      - user_db_data:/var/lib/postgresql/data
+
+  restaurant-db:
+    image: postgres:14
+    container_name: restaurant-db
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: restaurant_db
+    volumes:
+      - restaurant_db_data:/var/lib/postgresql/data
+
+  order-db:
+    image: postgres:14
+    container_name: order-db
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: order_db
+    volumes:
+      - order_db_data:/var/lib/postgresql/data
 
 volumes:
-  postgres_data:
-    driver: local
-
+  user_db_data:
+  restaurant_db_data:
+  order_db_data:
