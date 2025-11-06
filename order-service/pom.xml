@@ -65,27 +65,27 @@
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
         </dependency>
 
-        <!-- Зависимость для встраиваемой базы данных H2 -->
+        <!-- ИСПРАВЛЕНО: Зависимость H2 закомментирована, чтобы не мешать PostgreSQL -->
+        <!--
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>runtime</scope>
         </dependency>
+        -->
 
-        <!-- Мы закомментировали PostgreSQL, чтобы использовать H2 для разработки -->
-        <!--
+        <!-- ИСПРАВЛЕНО: Зависимость PostgreSQL раскомментирована для подключения к Docker -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
-        -->
 
         <dependency>
             <groupId>org.projectlombok</groupId>
