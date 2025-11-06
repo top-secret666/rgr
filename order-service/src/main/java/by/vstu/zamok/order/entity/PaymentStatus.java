@@ -4,6 +4,6 @@ public enum PaymentStatus {
     PENDING,    // Ожидает оплаты
     COMPLETED,  // Завершен
     FAILED,     // Не удался
-    CANCELLED,  // Отменен
-    PLACED,
+    CANCELLED,
+    PLACED// Отменен
 }

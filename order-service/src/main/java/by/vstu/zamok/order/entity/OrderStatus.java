@@ -1,5 +1,3 @@
-
-
 package by.vstu.zamok.order.entity;
 
 public enum OrderStatus {
