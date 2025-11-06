@@ -71,11 +71,21 @@
             <artifactId>spring-kafka</artifactId>
         </dependency>
 
+        <!-- Зависимость для встраиваемой базы данных H2 -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Мы закомментировали PostgreSQL, чтобы использовать H2 для разработки -->
+        <!--
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
+        -->
 
         <dependency>
             <groupId>org.projectlombok</groupId>

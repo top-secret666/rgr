@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -39,19 +39,19 @@ public class OrderServiceImpl implements OrderService {
 
         Order order = orderMapper.toEntity(orderRequestDto);
         order.setUserId(userId);
-        order.setStatus(OrderStatus.PLACED);
-        order.setOrderDate(new Date());
+        order.setStatus(OrderStatus.PENDING); // исправлено
+        order.setOrderDate(LocalDateTime.now()); // исправлено
 
         // Mock dish price calculation
-        BigDecimal totalPrice = order.getItems().stream()
+        BigDecimal totalPrice = order.getOrderItems().stream() // исправлено
                 .map(item -> new BigDecimal(item.getQuantity()).multiply(new BigDecimal("10.00")))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        order.setTotalPrice(totalPrice);
+        order.setTotalPrice(totalPrice.intValue()); // исправлено
 
         Payment payment = new Payment();
         payment.setMethod(orderRequestDto.getPaymentMethod());
-        payment.setAmount(totalPrice);
-        payment.setStatus(PaymentStatus.PAID); // Simulate successful payment
+        payment.setAmount(totalPrice.intValue()); // исправлено
+        payment.setStatus(PaymentStatus.COMPLETED); // исправлено: Simulate successful payment
         payment.setOrder(order);
 
         order.setPayment(payment);
