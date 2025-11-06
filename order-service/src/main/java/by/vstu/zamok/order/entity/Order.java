@@ -1,4 +1,3 @@
-
 package by.vstu.zamok.order.entity;
 
 import jakarta.persistence.*;
@@ -16,8 +15,9 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String status;
+    private OrderStatus status;
 
     @Column(nullable = false)
     private LocalDateTime orderDate;
