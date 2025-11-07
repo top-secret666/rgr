@@ -1,7 +1,6 @@
 
 services:
   zookeeper:
-    # ИСПРАВЛЕНО: Версия зафиксирована для стабильности
     image: confluentinc/cp-zookeeper:7.3.0
     container_name: zookeeper
     environment:
@@ -11,7 +10,6 @@ services:
       - "2181:2181"
 
   kafka:
-    # ИСПРАВЛЕНО: Версия зафиксирована для стабильности
     image: confluentinc/cp-kafka:7.3.0
     container_name: kafka
     depends_on:
@@ -61,6 +59,16 @@ services:
       POSTGRES_DB: order_db
     volumes:
       - order_db_data:/var/lib/postgresql/data
+  
+  keycloak:
+    image: quay.io/keycloak/keycloak:21.0.1
+    container_name: keycloak
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8081:8080"
 
 volumes:
   user_db_data:
