@@ -22,14 +22,14 @@ public class OrderController {
     private final OrderMapper orderMapper;
 
     @PostMapping
-    @PreAuthorize("isAuthenticated()") // Changed for debugging
+    @PreAuthorize("hasRole('USER')")
     public OrderResponseDto placeOrder(@RequestBody OrderRequestDto orderRequestDto) {
         Order order = orderService.placeOrder(orderRequestDto);
         return orderMapper.toDto(order);
     }
 
     @GetMapping
-    @PreAuthorize("isAuthenticated()") // Changed for debugging
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public List<OrderResponseDto> getAllOrders() {
         return orderService.getAllOrders().stream()
                 .map(orderMapper::toDto)
@@ -37,14 +37,14 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("isAuthenticated()") // Changed for debugging
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public OrderResponseDto getOrderById(@PathVariable Long id) {
         Order order = orderService.getOrderById(id);
         return orderMapper.toDto(order);
     }
 
     @PutMapping("/{id}/status")
-    @PreAuthorize("isAuthenticated()") // Changed for debugging
+    @PreAuthorize("hasRole('ADMIN')")
     public OrderResponseDto updateOrderStatus(@PathVariable Long id, @RequestBody OrderStatus status) {
         Order order = orderService.updateOrderStatus(id, status);
         return orderMapper.toDto(order);
