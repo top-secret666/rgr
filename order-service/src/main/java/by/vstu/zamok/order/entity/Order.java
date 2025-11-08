@@ -22,6 +22,7 @@ public class Order {
     @Column(nullable = false)
     private LocalDateTime orderDate;
 
+    // ИСПРАВЛЕНО: Тип возвращен к Long для соответствия схеме БД (BIGINT).
     @Column(nullable = false)
     private Long userId;
 

@@ -10,12 +10,13 @@ import org.mapstruct.Named;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = AddressMapper.class)
 public interface UserMapper {
 
     @Mapping(target = "roles", source = "roles", qualifiedByName = "rolesToString")
     UserDto toDto(User user);
 
+    @Mapping(target = "roles", source = "roles", qualifiedByName = "stringToRoles")
     User toEntity(UserDto userDto);
 
     @Named("rolesToString")
@@ -24,5 +25,19 @@ public interface UserMapper {
             return null;
         }
         return roles.stream().map(Role::getName).collect(Collectors.toSet());
+    }
+
+    @Named("stringToRoles")
+    static Set<Role> stringToRoles(Set<String> roleNames) {
+        if (roleNames == null) {
+            return null;
+        }
+        return roleNames.stream()
+                .map(name -> {
+                    Role role = new Role();
+                    role.setName(name);
+                    return role;
+                })
+                .collect(Collectors.toSet());
     }
 }
