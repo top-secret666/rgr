@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-11-18T15:04:25+0300",
-    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.8 (Oracle Corporation)"
+    date = "2025-11-27T14:09:24+0300",
+    comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.44.0.v20251118-1623, environment: Java 21.0.9 (Eclipse Adoptium)"
 )
 @Component
 public class OrderMapperImpl implements OrderMapper {
@@ -29,8 +29,8 @@ public class OrderMapperImpl implements OrderMapper {
 
         Order order = new Order();
 
-        order.setUserId( orderRequestDto.getUserId() );
         order.setRestaurantId( orderRequestDto.getRestaurantId() );
+        order.setUserId( orderRequestDto.getUserId() );
 
         return order;
     }
@@ -45,15 +45,15 @@ public class OrderMapperImpl implements OrderMapper {
 
         orderResponseDto.setPayment( paymentMapper.toDto( order.getPayment() ) );
         orderResponseDto.setId( order.getId() );
-        orderResponseDto.setStatus( order.getStatus() );
         if ( order.getOrderDate() != null ) {
             orderResponseDto.setOrderDate( Date.from( order.getOrderDate().toInstant( ZoneOffset.UTC ) ) );
         }
-        orderResponseDto.setUserId( order.getUserId() );
         orderResponseDto.setRestaurantId( order.getRestaurantId() );
+        orderResponseDto.setStatus( order.getStatus() );
         if ( order.getTotalPrice() != null ) {
             orderResponseDto.setTotalPrice( BigDecimal.valueOf( order.getTotalPrice() ) );
         }
+        orderResponseDto.setUserId( order.getUserId() );
 
         return orderResponseDto;
     }

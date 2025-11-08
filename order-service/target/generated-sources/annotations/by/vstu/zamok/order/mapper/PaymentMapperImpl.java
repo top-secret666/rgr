@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-11-18T15:04:25+0300",
-    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.8 (Oracle Corporation)"
+    date = "2025-11-27T14:09:23+0300",
+    comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.44.0.v20251118-1623, environment: Java 21.0.9 (Eclipse Adoptium)"
 )
 @Component
 public class PaymentMapperImpl implements PaymentMapper {
@@ -23,11 +23,11 @@ public class PaymentMapperImpl implements PaymentMapper {
 
         Payment payment = new Payment();
 
-        payment.setId( paymentDto.getId() );
-        payment.setMethod( paymentDto.getMethod() );
         if ( paymentDto.getAmount() != null ) {
             payment.setAmount( paymentDto.getAmount().intValue() );
         }
+        payment.setId( paymentDto.getId() );
+        payment.setMethod( paymentDto.getMethod() );
         if ( paymentDto.getStatus() != null ) {
             payment.setStatus( paymentDto.getStatus().name() );
         }
@@ -43,11 +43,11 @@ public class PaymentMapperImpl implements PaymentMapper {
 
         PaymentDto paymentDto = new PaymentDto();
 
-        paymentDto.setId( payment.getId() );
-        paymentDto.setMethod( payment.getMethod() );
         if ( payment.getAmount() != null ) {
             paymentDto.setAmount( BigDecimal.valueOf( payment.getAmount() ) );
         }
+        paymentDto.setId( payment.getId() );
+        paymentDto.setMethod( payment.getMethod() );
         if ( payment.getStatus() != null ) {
             paymentDto.setStatus( Enum.valueOf( PaymentStatus.class, payment.getStatus() ) );
         }

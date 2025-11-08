@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-11-18T15:04:25+0300",
-    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.8 (Oracle Corporation)"
+    date = "2025-11-27T14:09:24+0300",
+    comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.44.0.v20251118-1623, environment: Java 21.0.9 (Eclipse Adoptium)"
 )
 @Component
 public class OrderItemMapperImpl implements OrderItemMapper {
@@ -37,12 +37,12 @@ public class OrderItemMapperImpl implements OrderItemMapper {
 
         OrderItemResponseDto orderItemResponseDto = new OrderItemResponseDto();
 
-        orderItemResponseDto.setId( orderItem.getId() );
         orderItemResponseDto.setDishId( orderItem.getDishId() );
-        orderItemResponseDto.setQuantity( orderItem.getQuantity() );
+        orderItemResponseDto.setId( orderItem.getId() );
         if ( orderItem.getPrice() != null ) {
             orderItemResponseDto.setPrice( BigDecimal.valueOf( orderItem.getPrice() ) );
         }
+        orderItemResponseDto.setQuantity( orderItem.getQuantity() );
 
         return orderItemResponseDto;
     }
