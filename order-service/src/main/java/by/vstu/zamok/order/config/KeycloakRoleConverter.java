@@ -1,4 +1,4 @@
-package by.vstu.zamok.order.configuration;
+package by.vstu.zamok.order.config;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;
@@ -23,7 +23,7 @@ public class KeycloakRoleConverter implements Converter<Jwt, Collection<GrantedA
         Collection<String> roles = (Collection<String>) realmAccess.get("roles");
 
         return roles.stream()
-                .map(roleName -> "ROLE_" + roleName)
+                .map(roleName -> "ROLE_" + roleName.toUpperCase())
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
     }
