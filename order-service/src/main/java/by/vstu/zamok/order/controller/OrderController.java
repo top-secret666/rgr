@@ -8,6 +8,7 @@ import by.vstu.zamok.order.mapper.OrderMapper;
 import by.vstu.zamok.order.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,23 +24,27 @@ public class OrderController {
 
     @PostMapping
     @PreAuthorize("hasRole('USER')")
-    public OrderResponseDto placeOrder(@RequestBody OrderRequestDto orderRequestDto) {
-        Order order = orderService.placeOrder(orderRequestDto);
+    public OrderResponseDto placeOrder(@RequestBody OrderRequestDto orderRequestDto, JwtAuthenticationToken authentication) {
+        // Извлекаем ID пользователя (sub) из токена
+        String userId = authentication.getToken().getSubject();
+        Order order = orderService.placeOrder(orderRequestDto, userId);
         return orderMapper.toDto(order);
     }
 
     @GetMapping
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public List<OrderResponseDto> getAllOrders() {
-        return orderService.getAllOrders().stream()
+    public List<OrderResponseDto> getAllOrders(JwtAuthenticationToken authentication) {
+        // Передаем токен в сервис для фильтрации
+        return orderService.getAllOrders(authentication).stream()
                 .map(orderMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public OrderResponseDto getOrderById(@PathVariable Long id) {
-        Order order = orderService.getOrderById(id);
+    public OrderResponseDto getOrderById(@PathVariable Long id, JwtAuthenticationToken authentication) {
+        // Передаем токен в сервис для проверки владения
+        Order order = orderService.getOrderById(id, authentication);
         return orderMapper.toDto(order);
     }
 

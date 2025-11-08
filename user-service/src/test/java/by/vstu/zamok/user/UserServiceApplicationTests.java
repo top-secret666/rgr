@@ -1,10 +1,10 @@
-package by.vstu.zamok.lol.loltournament;
+package by.vstu.zamok.user;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class RgrApplicationTests {
+class UserServiceApplicationTests {
 
     @Test
     void contextLoads() {
