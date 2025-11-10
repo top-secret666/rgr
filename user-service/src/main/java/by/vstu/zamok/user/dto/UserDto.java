@@ -8,6 +8,8 @@ import java.util.Set;
 public class UserDto {
     private Long id;
     private String email;
+    // I've added the password field
+    private String password;
     private String fullName;
     private Set<AddressDto> addresses;
     private Set<String> roles;

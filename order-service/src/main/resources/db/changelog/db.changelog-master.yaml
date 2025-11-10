@@ -3,3 +3,6 @@ databaseChangeLog:
       file: db/changelog/changeset/order-schema-1.0.0.sql
   - include:
       file: db/changelog/changeset/order-data-1.0.0.sql
+#  # ЭТО ИСПРАВЛЕНИЕ: Добавляем новую миграцию для изменения типа колонки user
+#  - include:
+#      file: db/changelog/changeset/order-schema-1.0.1.sql

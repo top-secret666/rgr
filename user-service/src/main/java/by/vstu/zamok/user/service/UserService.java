@@ -8,4 +8,5 @@ public interface UserService {
     UserDto save(UserDto userDto);
     void deleteById(Long id);
     UserDto registerNewUserAccount(UserDto userDto);
+    UserDto findByKeycloakId(String keycloakId); // Добавлено
 }

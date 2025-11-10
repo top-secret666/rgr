@@ -23,9 +23,8 @@ public class OrderController {
     private final OrderMapper orderMapper;
 
     @PostMapping
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public OrderResponseDto placeOrder(@RequestBody OrderRequestDto orderRequestDto, JwtAuthenticationToken authentication) {
-        // Извлекаем ID пользователя (sub) из токена
         String userId = authentication.getToken().getSubject();
         Order order = orderService.placeOrder(orderRequestDto, userId);
         return orderMapper.toDto(order);
@@ -34,7 +33,6 @@ public class OrderController {
     @GetMapping
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public List<OrderResponseDto> getAllOrders(JwtAuthenticationToken authentication) {
-        // Передаем токен в сервис для фильтрации
         return orderService.getAllOrders(authentication).stream()
                 .map(orderMapper::toDto)
                 .collect(Collectors.toList());
@@ -43,7 +41,6 @@ public class OrderController {
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public OrderResponseDto getOrderById(@PathVariable Long id, JwtAuthenticationToken authentication) {
-        // Передаем токен в сервис для проверки владения
         Order order = orderService.getOrderById(id, authentication);
         return orderMapper.toDto(order);
     }

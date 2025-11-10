@@ -37,6 +37,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserDto findByKeycloakId(String keycloakId) {
+        Optional<User> user = userRepository.findByKeycloakId(keycloakId);
+        return user.map(userMapper::toDto).orElse(null);
+    }
+
+    @Override
     public UserDto save(UserDto userDto) {
         User user = userMapper.toEntity(userDto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));

@@ -1,4 +1,10 @@
 --liquibase formatted sql
+--drop  database if exists order_db;
+create database order_db;
+
+DROP TABLE if exists order_schema.orders;
+DROP TABLE IF EXISTS order_schema.order_item;
+DROP TABLE IF EXISTS order_schema.payment;
 
 --changeset zham:1
 CREATE SCHEMA IF NOT EXISTS order_schema;

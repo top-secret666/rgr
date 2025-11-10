@@ -2,10 +2,14 @@ package by.vstu.zamok.user.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -14,16 +18,36 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    @Order(1)
+    public SecurityFilterChain publicEndpointsSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // This filter chain applies only to the specified public paths
+                .securityMatcher("/swagger-ui/**", "/v3/api-docs/**", "/api/users/register")
                 .authorizeHttpRequests(authorize -> authorize
-                        // Разрешаем доступ к Swagger UI и эндпоинту регистрации
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/api/auth/register").permitAll()
-                        .anyRequest().authenticated())
-                // Включаем стандартную валидацию JWT токенов
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt());
+                        .anyRequest().permitAll()
+                )
+                .csrf(csrf -> csrf.disable());
+
+        return http.build();
+    }
+
+    @Bean
+    @Order(2)
+    public SecurityFilterChain privateEndpointsSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+                // This filter chain applies to all other paths and secures them
+                .authorizeHttpRequests(authorize -> authorize
+                        .anyRequest().authenticated()
+                )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // Enable JWT-based authentication for these paths (using new syntax)
+                .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
+                .csrf(csrf -> csrf.disable());
 
         return http.build();
     }

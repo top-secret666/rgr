@@ -1,4 +1,3 @@
-
 package by.vstu.zamok.user.entity;
 
 import jakarta.persistence.*;
@@ -13,13 +12,16 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Entity
-@Table(name = "users", schema = "user_schema")
+@Table(name = "users") // schema removed
 @Data
 public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "keycloak_id", unique = true)
+    private String keycloakId;
 
     @Column(nullable = false, unique = true)
     private String email;
@@ -41,7 +43,7 @@ public class User implements UserDetails {
 
     @ManyToMany(fetch = FetchType.EAGER) // EAGER is often better for roles
     @JoinTable(
-            name = "user_roles", schema = "user_schema",
+            name = "user_roles", // schema removed
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )

@@ -9,7 +9,7 @@ spring:
     password: password
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update # ИЗМЕНЕНО: validate -> update для автоматического обновления схемы БД
     database-platform: org.hibernate.dialect.PostgreSQLDialect
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml

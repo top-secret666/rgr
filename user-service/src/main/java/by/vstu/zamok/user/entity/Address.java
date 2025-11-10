@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "address", schema = "user_schema")
+@Table(name = "address") // schema removed
 @Data
 public class Address {
 
