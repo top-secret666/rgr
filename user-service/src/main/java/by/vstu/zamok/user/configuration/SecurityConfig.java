@@ -27,7 +27,7 @@ public class SecurityConfig {
     public SecurityFilterChain publicEndpointsSecurityFilterChain(HttpSecurity http) throws Exception {
         http
                 // This filter chain applies only to the specified public paths
-                .securityMatcher("/swagger-ui/**", "/v3/api-docs/**", "/api/users/register")
+                .securityMatcher("/swagger-ui/**", "/v3/api-docs/**", "/api/users/register", "/api/users/by-keycloak-id/**")
                 .authorizeHttpRequests(authorize -> authorize
                         .anyRequest().permitAll()
                 )
