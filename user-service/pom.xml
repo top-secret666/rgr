@@ -158,11 +158,11 @@
         </plugins>
     </build>
     <repositories>
-        <repository>
+        <!-- <repository>
             <id>keycloak</id>
             <url>https://maven.keycloak.dev/</url>
             <releases><enabled>true</enabled></releases>
             <snapshots><enabled>false</enabled></snapshots>
-        </repository>
+        </repository> -->
     </repositories>
 </project>
