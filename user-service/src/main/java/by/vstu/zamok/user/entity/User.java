@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Entity
-@Table(name = "users") // schema removed
+@Table(name = "users", schema = "user_schema") // explicit schema
 @Data
 public class User implements UserDetails {
 
@@ -43,7 +43,8 @@ public class User implements UserDetails {
 
     @ManyToMany(fetch = FetchType.EAGER) // EAGER is often better for roles
     @JoinTable(
-            name = "user_roles", // schema removed
+            name = "user_roles",
+            schema = "user_schema",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
