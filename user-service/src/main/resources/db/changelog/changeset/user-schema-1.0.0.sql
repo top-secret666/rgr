@@ -38,5 +38,5 @@ CREATE TABLE IF NOT EXISTS user_schema.address (
 );
 
 --changeset zham:3
-INSERT INTO user_schema.roles(name) VALUES ('ROLE_USER');
-INSERT INTO user_schema.roles(name) VALUES ('ROLE_ADMIN');
+INSERT INTO user_schema.roles(name) VALUES ('ROLE_USER') ON CONFLICT (name) DO NOTHING;
+INSERT INTO user_schema.roles(name) VALUES ('') ON CONFLICT (name) DO NOTHING;
