@@ -6,6 +6,7 @@ import by.vstu.zamok.order.entity.Order;
 import by.vstu.zamok.order.entity.OrderStatus;
 import by.vstu.zamok.order.mapper.OrderMapper;
 import by.vstu.zamok.order.service.OrderService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -24,7 +25,7 @@ public class OrderController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public OrderResponseDto placeOrder(@RequestBody OrderRequestDto orderRequestDto, JwtAuthenticationToken authentication) {
+    public OrderResponseDto placeOrder(@RequestBody @Valid OrderRequestDto orderRequestDto, JwtAuthenticationToken authentication) {
         String userId = authentication.getToken().getSubject();
         Order order = orderService.placeOrder(orderRequestDto, userId);
         return orderMapper.toDto(order);
