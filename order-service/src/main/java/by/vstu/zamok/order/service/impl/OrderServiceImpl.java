@@ -1,7 +1,7 @@
 package by.vstu.zamok.order.service.impl;
 
+import by.vstu.zamok.order.client.UserServiceClient;
 import by.vstu.zamok.order.dto.OrderRequestDto;
-import by.vstu.zamok.order.dto.UserDto;
 import by.vstu.zamok.order.entity.Order;
 import by.vstu.zamok.order.entity.OrderItem;
 import by.vstu.zamok.order.entity.OrderStatus;
@@ -14,20 +14,12 @@ import by.vstu.zamok.order.repository.OrderRepository;
 import by.vstu.zamok.order.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import io.github.resilience4j.retry.annotation.Retry;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -43,10 +35,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
     private final KafkaTemplate<String, OrderCreatedEvent> kafkaTemplate; // Сохранено
-    private final RestTemplate restTemplate; // Добавлено
-
-    @Value("${user.service.url}")
-    private String USER_SERVICE_URL;
+    private final UserServiceClient userServiceClient;
 
     @Value("${order.kafka.topic:order-created}")
     private String ORDER_CREATED_TOPIC;
@@ -54,9 +43,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public Order placeOrder(OrderRequestDto orderRequestDto, JwtAuthenticationToken authentication) {
-        System.out.println("--- EXECUTING LATEST CODE ---"); // Сохранено
-
-        Long userId = getUserIdFromKeycloakId(authentication);
+        Long userId = userServiceClient.resolveUserId(authentication);
 
         Order order = orderMapper.toEntity(orderRequestDto);
         order.setStatus(OrderStatus.PENDING);
@@ -104,7 +91,7 @@ public class OrderServiceImpl implements OrderService {
         if (isAdmin(authentication)) {
             return orderRepository.findAll();
         } else {
-            Long userId = getUserIdFromKeycloakId(authentication);
+            Long userId = userServiceClient.resolveUserId(authentication);
             return orderRepository.findByUserId(userId); // Заменено 1L
         }
     }
@@ -119,7 +106,7 @@ public class OrderServiceImpl implements OrderService {
             return order;
         }
 
-        Long userId = getUserIdFromKeycloakId(authentication);
+        Long userId = userServiceClient.resolveUserId(authentication);
 
         if (Objects.equals(order.getUserId(), userId)) { // Заменено 1L
             return order;
@@ -145,7 +132,7 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + id));
 
         if (!isAdmin(authentication)) {
-            Long userId = getUserIdFromKeycloakId(authentication);
+            Long userId = userServiceClient.resolveUserId(authentication);
             if (!Objects.equals(order.getUserId(), userId)) {
                 throw new AccessDeniedException("You do not have permission to cancel this order");
             }
@@ -174,31 +161,6 @@ public class OrderServiceImpl implements OrderService {
                 "revenue", revenue,
                 "byStatus", byStatus
         );
-    }
-
-    @Retry(name = "userService", fallbackMethod = "userFallback")
-    @CircuitBreaker(name = "userService", fallbackMethod = "userFallback")
-    private Long getUserIdFromKeycloakId(JwtAuthenticationToken authentication) {
-        String keycloakId = authentication.getToken().getSubject();
-        String bearer = authentication.getToken().getTokenValue();
-        String url = USER_SERVICE_URL + "/api/users/by-keycloak-id/" + keycloakId;
-        try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setBearerAuth(bearer);
-            HttpEntity<Void> entity = new HttpEntity<>(headers);
-            ResponseEntity<UserDto> response = restTemplate.exchange(url, HttpMethod.GET, entity, UserDto.class);
-            UserDto user = response.getBody();
-            if (user == null || user.getId() == null) {
-                throw new ResourceNotFoundException("User not found in user-service for keycloakId: " + keycloakId);
-            }
-            return user.getId();
-        } catch (HttpClientErrorException.NotFound e) {
-            throw new ResourceNotFoundException("User not found in user-service for keycloakId: " + keycloakId, e);
-        }
-    }
-
-    private Long userFallback(String keycloakId, Throwable t) {
-        throw new ResourceNotFoundException("User-service unavailable or user not found for keycloakId: " + keycloakId);
     }
 
     private boolean isAdmin(JwtAuthenticationToken authentication) {
