@@ -2,12 +2,14 @@ package by.vstu.zamok.order.controller;
 
 import by.vstu.zamok.order.dto.OrderRequestDto;
 import by.vstu.zamok.order.dto.OrderResponseDto;
+import by.vstu.zamok.order.dto.UpdateOrderStatusRequest;
 import by.vstu.zamok.order.entity.Order;
 import by.vstu.zamok.order.entity.OrderStatus;
 import by.vstu.zamok.order.mapper.OrderMapper;
 import by.vstu.zamok.order.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +27,7 @@ public class OrderController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @ResponseStatus(HttpStatus.CREATED)
     public OrderResponseDto placeOrder(@RequestBody @Valid OrderRequestDto orderRequestDto, JwtAuthenticationToken authentication) {
         Order order = orderService.placeOrder(orderRequestDto, authentication);
         return orderMapper.toDto(order);
@@ -47,13 +50,14 @@ public class OrderController {
 
     @PutMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN')")
-    public OrderResponseDto updateOrderStatus(@PathVariable Long id, @RequestBody OrderStatus status) {
-        Order order = orderService.updateOrderStatus(id, status);
+    public OrderResponseDto updateOrderStatus(@PathVariable Long id, @RequestBody @Valid UpdateOrderStatusRequest request) {
+        Order order = orderService.updateOrderStatus(id, request.getStatus());
         return orderMapper.toDto(order);
     }
 
     @PatchMapping("/{id}/cancel")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @ResponseStatus(HttpStatus.ACCEPTED)
     public OrderResponseDto cancelOrder(@PathVariable Long id, JwtAuthenticationToken authentication) {
         Order order = orderService.cancelOrder(id, authentication);
         return orderMapper.toDto(order);

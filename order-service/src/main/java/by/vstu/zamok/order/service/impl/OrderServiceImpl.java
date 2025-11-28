@@ -8,8 +8,10 @@ import by.vstu.zamok.order.entity.OrderStatus;
 import by.vstu.zamok.order.entity.Payment;
 import by.vstu.zamok.order.entity.PaymentStatus;
 import by.vstu.zamok.order.event.OrderCreatedEvent;
+import by.vstu.zamok.order.event.OrderStatusChangedEvent;
 import by.vstu.zamok.order.exception.ResourceNotFoundException;
 import by.vstu.zamok.order.mapper.OrderMapper;
+import by.vstu.zamok.order.payment.PaymentStrategyFactory;
 import by.vstu.zamok.order.repository.OrderRepository;
 import by.vstu.zamok.order.service.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -34,11 +36,15 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
-    private final KafkaTemplate<String, OrderCreatedEvent> kafkaTemplate; // Сохранено
+    private final KafkaTemplate<String, Object> kafkaTemplate;
     private final UserServiceClient userServiceClient;
+    private final PaymentStrategyFactory paymentStrategyFactory;
 
     @Value("${order.kafka.topic:order-created}")
     private String ORDER_CREATED_TOPIC;
+
+    @Value("${order.kafka.status-topic:order-status-changed}")
+    private String ORDER_STATUS_CHANGED_TOPIC;
 
     @Override
     @Transactional
@@ -68,13 +74,7 @@ public class OrderServiceImpl implements OrderService {
         payment.setMethod(orderRequestDto.getPaymentMethod());
         payment.setAmount(totalPrice);
         payment.setOrder(order);
-        // Simple strategy: CARD => PAID, CASH => PLACED
-        String method = Optional.ofNullable(orderRequestDto.getPaymentMethod()).orElse("CASH").toUpperCase();
-        if ("CARD".equals(method)) {
-            payment.setStatus(PaymentStatus.COMPLETED.name());
-        } else {
-            payment.setStatus(PaymentStatus.PLACED.name());
-        }
+        paymentStrategyFactory.forMethod(orderRequestDto.getPaymentMethod()).apply(payment);
         order.setPayment(payment);
 
         Order savedOrder = orderRepository.save(order);
@@ -122,7 +122,9 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + id));
 
         order.setStatus(status);
-        return orderRepository.save(order);
+        Order saved = orderRepository.save(order);
+        kafkaTemplate.send(ORDER_STATUS_CHANGED_TOPIC, new OrderStatusChangedEvent(saved.getId(), saved.getStatus()));
+        return saved;
     }
 
     @Override
@@ -142,7 +144,9 @@ public class OrderServiceImpl implements OrderService {
             return order; // idempotent
         }
         order.setStatus(OrderStatus.CANCELLED);
-        return orderRepository.save(order);
+        Order saved = orderRepository.save(order);
+        kafkaTemplate.send(ORDER_STATUS_CHANGED_TOPIC, new OrderStatusChangedEvent(saved.getId(), saved.getStatus()));
+        return saved;
     }
 
     @Override
