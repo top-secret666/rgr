@@ -15,4 +15,8 @@ public interface OrderService {
     Order getOrderById(Long id, JwtAuthenticationToken authentication);
 
     Order updateOrderStatus(Long id, OrderStatus status);
+
+    Order cancelOrder(Long id, JwtAuthenticationToken authentication);
+
+    Object analyticsSummary(String from, String to);
 }

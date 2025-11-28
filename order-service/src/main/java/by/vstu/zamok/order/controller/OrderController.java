@@ -51,4 +51,18 @@ public class OrderController {
         Order order = orderService.updateOrderStatus(id, status);
         return orderMapper.toDto(order);
     }
+
+    @PatchMapping("/{id}/cancel")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    public OrderResponseDto cancelOrder(@PathVariable Long id, JwtAuthenticationToken authentication) {
+        Order order = orderService.cancelOrder(id, authentication);
+        return orderMapper.toDto(order);
+    }
+
+    @GetMapping("/analytics/summary")
+    @PreAuthorize("hasRole('ADMIN')")
+    public Object analyticsSummary(@RequestParam(required = false) String from,
+                                   @RequestParam(required = false) String to) {
+        return orderService.analyticsSummary(from, to);
+    }
 }
