@@ -36,8 +36,7 @@ public class SecurityConfig {
     @org.springframework.beans.factory.annotation.Value("${security.require-email-verified:true}")
     private boolean requireVerified;
 
-    @Bean
-    public Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter() {
+    private Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter() {
         JwtAuthenticationConverter delegate = new JwtAuthenticationConverter();
         delegate.setJwtGrantedAuthoritiesConverter(new KeycloakRoleConverter());
         return jwt -> {
