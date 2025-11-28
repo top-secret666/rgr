@@ -19,15 +19,16 @@ public class Order {
     @Column(nullable = false)
     private OrderStatus status;
 
-    @Column(nullable = false)
+    @Column(name = "order_date", nullable = false)
     private LocalDateTime orderDate;
-    @Column(nullable = false)
+
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Column(nullable = false)
+    @Column(name = "restaurant_id", nullable = false)
     private Long restaurantId;
 
-    @Column(nullable = false)
+    @Column(name = "total_price", nullable = false)
     private Integer totalPrice;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
