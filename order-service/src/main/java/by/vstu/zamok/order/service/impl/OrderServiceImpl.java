@@ -41,6 +41,9 @@ public class OrderServiceImpl implements OrderService {
     @Value("${user.service.url}")
     private String USER_SERVICE_URL;
 
+    @Value("${order.kafka.topic:order-created}")
+    private String ORDER_CREATED_TOPIC;
+
     @Override
     @Transactional
     public Order placeOrder(OrderRequestDto orderRequestDto, String keycloakId) {
@@ -76,8 +79,8 @@ public class OrderServiceImpl implements OrderService {
 
         Order savedOrder = orderRepository.save(order);
 
-        // Событие для Kafka сохранено
-        // kafkaTemplate.send("order-created", new OrderCreatedEvent(savedOrder.getId(), savedOrder.getUserId()));
+        // Публикация события в Kafka
+        kafkaTemplate.send(ORDER_CREATED_TOPIC, new OrderCreatedEvent(savedOrder.getId(), savedOrder.getUserId()));
 
         return savedOrder;
     }
