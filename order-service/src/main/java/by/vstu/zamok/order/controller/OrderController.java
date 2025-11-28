@@ -26,8 +26,7 @@ public class OrderController {
     @PostMapping
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public OrderResponseDto placeOrder(@RequestBody @Valid OrderRequestDto orderRequestDto, JwtAuthenticationToken authentication) {
-        String userId = authentication.getToken().getSubject();
-        Order order = orderService.placeOrder(orderRequestDto, userId);
+        Order order = orderService.placeOrder(orderRequestDto, authentication);
         return orderMapper.toDto(order);
     }
 

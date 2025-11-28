@@ -14,6 +14,9 @@ import by.vstu.zamok.order.repository.OrderRepository;
 import by.vstu.zamok.order.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -50,10 +53,10 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public Order placeOrder(OrderRequestDto orderRequestDto, String keycloakId) {
+    public Order placeOrder(OrderRequestDto orderRequestDto, JwtAuthenticationToken authentication) {
         System.out.println("--- EXECUTING LATEST CODE ---"); // Сохранено
 
-        Long userId = getUserIdFromKeycloakId(keycloakId);
+        Long userId = getUserIdFromKeycloakId(authentication);
 
         Order order = orderMapper.toEntity(orderRequestDto);
         order.setStatus(OrderStatus.PENDING);
@@ -101,8 +104,7 @@ public class OrderServiceImpl implements OrderService {
         if (isAdmin(authentication)) {
             return orderRepository.findAll();
         } else {
-            String keycloakId = authentication.getToken().getSubject();
-            Long userId = getUserIdFromKeycloakId(keycloakId);
+            Long userId = getUserIdFromKeycloakId(authentication);
             return orderRepository.findByUserId(userId); // Заменено 1L
         }
     }
@@ -117,8 +119,7 @@ public class OrderServiceImpl implements OrderService {
             return order;
         }
 
-        String keycloakId = authentication.getToken().getSubject();
-        Long userId = getUserIdFromKeycloakId(keycloakId);
+        Long userId = getUserIdFromKeycloakId(authentication);
 
         if (Objects.equals(order.getUserId(), userId)) { // Заменено 1L
             return order;
@@ -144,8 +145,7 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + id));
 
         if (!isAdmin(authentication)) {
-            String keycloakId = authentication.getToken().getSubject();
-            Long userId = getUserIdFromKeycloakId(keycloakId);
+            Long userId = getUserIdFromKeycloakId(authentication);
             if (!Objects.equals(order.getUserId(), userId)) {
                 throw new AccessDeniedException("You do not have permission to cancel this order");
             }
@@ -178,10 +178,15 @@ public class OrderServiceImpl implements OrderService {
 
     @Retry(name = "userService", fallbackMethod = "userFallback")
     @CircuitBreaker(name = "userService", fallbackMethod = "userFallback")
-    private Long getUserIdFromKeycloakId(String keycloakId) {
+    private Long getUserIdFromKeycloakId(JwtAuthenticationToken authentication) {
+        String keycloakId = authentication.getToken().getSubject();
+        String bearer = authentication.getToken().getTokenValue();
         String url = USER_SERVICE_URL + "/api/users/by-keycloak-id/" + keycloakId;
         try {
-            ResponseEntity<UserDto> response = restTemplate.getForEntity(url, UserDto.class);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(bearer);
+            HttpEntity<Void> entity = new HttpEntity<>(headers);
+            ResponseEntity<UserDto> response = restTemplate.exchange(url, HttpMethod.GET, entity, UserDto.class);
             UserDto user = response.getBody();
             if (user == null || user.getId() == null) {
                 throw new ResourceNotFoundException("User not found in user-service for keycloakId: " + keycloakId);

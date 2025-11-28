@@ -8,7 +8,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import java.util.List;
 
 public interface OrderService {
-    Order placeOrder(OrderRequestDto orderRequestDto, String userId);
+    Order placeOrder(OrderRequestDto orderRequestDto, JwtAuthenticationToken authentication);
 
     List<Order> getAllOrders(JwtAuthenticationToken authentication);
 
