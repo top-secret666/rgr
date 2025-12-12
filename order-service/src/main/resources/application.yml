@@ -1,0 +1,22 @@
+server:
+  port: 8082
+
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5434/order_db # ИСПРАВЛЕНО: порт был 5432, но для order-db вы используете 5434
+    username: user
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: update # ИЗМЕНЕНО: validate -> update для автоматического обновления схемы БД
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: true
+  # ДОБАВЛЕНО: Конфигурация Kafka
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
