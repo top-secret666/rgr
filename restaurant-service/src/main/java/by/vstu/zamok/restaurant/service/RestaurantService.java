@@ -4,6 +4,7 @@ import by.vstu.zamok.restaurant.dto.RatingDto;
 import by.vstu.zamok.restaurant.dto.RestaurantDto;
 import by.vstu.zamok.restaurant.entity.Restaurant;
 import by.vstu.zamok.restaurant.entity.RestaurantRating;
+import by.vstu.zamok.restaurant.exception.ResourceNotFoundException;
 import by.vstu.zamok.restaurant.mapper.RestaurantMapper;
 import by.vstu.zamok.restaurant.repository.RestaurantRatingRepository;
 import by.vstu.zamok.restaurant.repository.RestaurantRepository;
@@ -25,7 +26,18 @@ public class RestaurantService {
     }
 
     public RestaurantDto findById(Long id) {
-        return restaurantMapper.toDto(restaurantRepository.findById(id).orElse(null));
+        Restaurant entity = restaurantRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Restaurant not found: " + id));
+        return restaurantMapper.toDto(entity);
+    }
+
+    public RestaurantDto update(Long id, RestaurantDto restaurant) {
+        if (!restaurantRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Restaurant not found: " + id);
+        }
+        Restaurant entity = restaurantMapper.toEntity(restaurant);
+        entity.setId(id);
+        return restaurantMapper.toDto(restaurantRepository.save(entity));
     }
 
     public RestaurantDto save(RestaurantDto restaurant) {
@@ -34,6 +46,9 @@ public class RestaurantService {
     }
 
     public void deleteById(Long id) {
+        if (!restaurantRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Restaurant not found: " + id);
+        }
         restaurantRepository.deleteById(id);
     }
 
@@ -59,7 +74,8 @@ public class RestaurantService {
     }
 
     public void addRating(Long restaurantId, String keycloakId, RatingDto dto) {
-        Restaurant r = restaurantRepository.findById(restaurantId).orElseThrow();
+        Restaurant r = restaurantRepository.findById(restaurantId)
+            .orElseThrow(() -> new ResourceNotFoundException("Restaurant not found: " + restaurantId));
         RestaurantRating rating = new RestaurantRating();
         rating.setRestaurant(r);
         rating.setKeycloakId(keycloakId == null ? "anonymous" : keycloakId);

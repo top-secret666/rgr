@@ -33,6 +33,12 @@ public class RestaurantController {
         return restaurantService.save(restaurant);
     }
 
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public RestaurantDto update(@PathVariable Long id, @RequestBody @Valid RestaurantDto restaurant) {
+        return restaurantService.update(id, restaurant);
+    }
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public void delete(@PathVariable Long id) {
