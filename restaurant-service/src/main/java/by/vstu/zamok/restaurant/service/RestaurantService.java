@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @AllArgsConstructor
@@ -83,5 +84,21 @@ public class RestaurantService {
         rating.setComment(dto.getComment());
         rating.setCreatedAt(LocalDateTime.now());
         ratingRepository.save(rating);
+    }
+
+    public Map<String, Object> ratingSummary(Long restaurantId) {
+        // Ensure restaurant exists
+        restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Restaurant not found: " + restaurantId));
+
+        var opt = ratingRepository.ratingSummary(restaurantId);
+        if (opt.isEmpty()) {
+            return Map.of("restaurantId", restaurantId, "avg", 0.0, "count", 0);
+        }
+
+        Object[] row = opt.get();
+        Double avg = row[0] == null ? 0.0 : ((Number) row[0]).doubleValue();
+        Long count = row[1] == null ? 0L : ((Number) row[1]).longValue();
+        return Map.of("restaurantId", restaurantId, "avg", avg, "count", count);
     }
 }

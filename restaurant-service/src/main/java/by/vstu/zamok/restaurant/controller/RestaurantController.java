@@ -5,6 +5,8 @@ import by.vstu.zamok.restaurant.dto.RatingDto;
 import by.vstu.zamok.restaurant.service.RestaurantService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
@@ -29,8 +31,8 @@ public class RestaurantController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public RestaurantDto create(@RequestBody @Valid RestaurantDto restaurant) {
-        return restaurantService.save(restaurant);
+    public ResponseEntity<RestaurantDto> create(@RequestBody @Valid RestaurantDto restaurant) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(restaurantService.save(restaurant));
     }
 
     @PutMapping("/{id}")
@@ -41,8 +43,9 @@ public class RestaurantController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public void delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         restaurantService.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/search")
@@ -63,8 +66,14 @@ public class RestaurantController {
 
     @PostMapping("/{id}/rating")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public void rate(@PathVariable Long id, @RequestBody @Valid RatingDto dto, JwtAuthenticationToken authentication) {
+    public ResponseEntity<Void> rate(@PathVariable Long id, @RequestBody @Valid RatingDto dto, JwtAuthenticationToken authentication) {
         String keycloakId = authentication.getToken().getSubject();
         restaurantService.addRating(id, keycloakId, dto);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @GetMapping("/{id}/rating")
+    public ResponseEntity<?> ratingSummary(@PathVariable Long id) {
+        return ResponseEntity.ok(restaurantService.ratingSummary(id));
     }
 }

@@ -7,7 +7,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -22,25 +22,38 @@ public class GlobalExceptionHandler {
             fe -> fe.getDefaultMessage() == null ? "invalid" : fe.getDefaultMessage(),
             (a, b) -> a
         ));
-    return new ResponseEntity<>(
-        new ErrorResponse(Instant.now(), HttpStatus.BAD_REQUEST.value(), "Bad Request", "Validation failed", req.getRequestURI(), errors),
-        HttpStatus.BAD_REQUEST
-    );
+    ErrorResponse body = ErrorResponse.builder()
+            .status(HttpStatus.BAD_REQUEST.value())
+            .error("Bad Request")
+            .message("Validation failed")
+            .timestamp(LocalDateTime.now())
+            .path(req.getRequestURI())
+            .errors(errors)
+            .build();
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex, HttpServletRequest req) {
-    return new ResponseEntity<>(
-        new ErrorResponse(Instant.now(), HttpStatus.NOT_FOUND.value(), "Not Found", ex.getMessage(), req.getRequestURI(), null),
-        HttpStatus.NOT_FOUND
-    );
+    ErrorResponse body = ErrorResponse.builder()
+            .status(HttpStatus.NOT_FOUND.value())
+            .error("Not Found")
+            .message(ex.getMessage())
+            .timestamp(LocalDateTime.now())
+            .path(req.getRequestURI())
+            .build();
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleAny(Exception ex, HttpServletRequest req) {
-    return new ResponseEntity<>(
-        new ErrorResponse(Instant.now(), HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal Server Error", ex.getMessage(), req.getRequestURI(), null),
-        HttpStatus.INTERNAL_SERVER_ERROR
-    );
+    ErrorResponse body = ErrorResponse.builder()
+            .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+            .error("Internal Server Error")
+            .message(ex.getMessage())
+            .timestamp(LocalDateTime.now())
+            .path(req.getRequestURI())
+            .build();
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
 }

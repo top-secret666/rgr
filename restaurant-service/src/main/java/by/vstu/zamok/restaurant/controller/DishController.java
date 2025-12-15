@@ -4,6 +4,8 @@ import by.vstu.zamok.restaurant.dto.DishDto;
 import by.vstu.zamok.restaurant.service.DishService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,9 +31,9 @@ public class DishController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public DishDto createDish(@PathVariable Long restaurantId, @RequestBody @Valid DishDto dishDto) {
+    public ResponseEntity<DishDto> createDish(@PathVariable Long restaurantId, @RequestBody @Valid DishDto dishDto) {
         dishDto.setRestaurantId(restaurantId);
-        return dishService.save(dishDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(dishService.save(dishDto));
     }
 
     @PutMapping("/{dishId}")
@@ -44,7 +46,8 @@ public class DishController {
 
     @DeleteMapping("/{dishId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public void deleteDish(@PathVariable Long dishId) {
+    public ResponseEntity<Void> deleteDish(@PathVariable Long dishId) {
         dishService.deleteById(dishId);
+        return ResponseEntity.noContent().build();
     }
 }

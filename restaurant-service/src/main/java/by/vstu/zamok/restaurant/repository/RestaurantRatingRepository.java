@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface RestaurantRatingRepository extends JpaRepository<RestaurantRating, Long> {
     List<RestaurantRating> findByRestaurant_Id(Long restaurantId);
@@ -16,4 +17,7 @@ public interface RestaurantRatingRepository extends JpaRepository<RestaurantRati
 
     @Query("select rr.restaurant.id, count(rr.id) from RestaurantRating rr where rr.createdAt >= :from group by rr.restaurant.id order by count(rr.id) desc")
     List<Object[]> trendingSince(@Param("from") LocalDateTime from);
+
+    @Query("select avg(rr.score), count(rr.id) from RestaurantRating rr where rr.restaurant.id = :restaurantId")
+    Optional<Object[]> ratingSummary(@Param("restaurantId") Long restaurantId);
 }
