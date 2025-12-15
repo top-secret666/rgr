@@ -29,7 +29,7 @@ public class RestaurantController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public RestaurantDto create(@RequestBody RestaurantDto restaurant) {
+    public RestaurantDto create(@RequestBody @Valid RestaurantDto restaurant) {
         return restaurantService.save(restaurant);
     }
 

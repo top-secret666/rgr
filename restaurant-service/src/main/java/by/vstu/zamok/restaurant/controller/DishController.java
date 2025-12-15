@@ -2,6 +2,7 @@ package by.vstu.zamok.restaurant.controller;
 
 import by.vstu.zamok.restaurant.dto.DishDto;
 import by.vstu.zamok.restaurant.service.DishService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,14 +29,16 @@ public class DishController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public DishDto createDish(@RequestBody DishDto dishDto) {
+    public DishDto createDish(@PathVariable Long restaurantId, @RequestBody @Valid DishDto dishDto) {
+        dishDto.setRestaurantId(restaurantId);
         return dishService.save(dishDto);
     }
 
     @PutMapping("/{dishId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public DishDto updateDish(@PathVariable Long dishId, @RequestBody DishDto dishDto) {
+    public DishDto updateDish(@PathVariable Long restaurantId, @PathVariable Long dishId, @RequestBody @Valid DishDto dishDto) {
         dishDto.setId(dishId);
+        dishDto.setRestaurantId(restaurantId);
         return dishService.save(dishDto);
     }
 
