@@ -6,6 +6,7 @@ import by.vstu.zamok.restaurant.service.RestaurantService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -56,8 +57,8 @@ public class RestaurantController {
 
     @PostMapping("/{id}/rating")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public void rate(@PathVariable Long id, @RequestBody @Valid RatingDto dto, @RequestHeader(value = "X-User", required = false) String keycloakId) {
-        // keycloakId можно получать из токена, здесь допускаем заголовок как упрощение
+    public void rate(@PathVariable Long id, @RequestBody @Valid RatingDto dto, JwtAuthenticationToken authentication) {
+        String keycloakId = authentication.getToken().getSubject();
         restaurantService.addRating(id, keycloakId, dto);
     }
 }
