@@ -12,6 +12,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.http.HttpMethod;
 
 @Configuration
 @EnableWebSecurity
@@ -25,9 +26,9 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
                     .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                    .requestMatchers("/api/restaurants", "/api/restaurants/*").permitAll()
-                    .requestMatchers("/api/restaurants/search", "/api/restaurants/popular", "/api/restaurants/trending").permitAll()
-                    .requestMatchers("/api/restaurants/*/dishes").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/restaurants", "/api/restaurants/*").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/restaurants/search", "/api/restaurants/popular", "/api/restaurants/trending").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/restaurants/*/dishes").permitAll()
                     .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
