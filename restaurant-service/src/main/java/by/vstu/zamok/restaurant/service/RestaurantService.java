@@ -1,20 +1,24 @@
 package by.vstu.zamok.restaurant.service;
 
+import by.vstu.zamok.restaurant.dto.RatingDto;
 import by.vstu.zamok.restaurant.dto.RestaurantDto;
 import by.vstu.zamok.restaurant.entity.Restaurant;
+import by.vstu.zamok.restaurant.entity.RestaurantRating;
 import by.vstu.zamok.restaurant.mapper.RestaurantMapper;
+import by.vstu.zamok.restaurant.repository.RestaurantRatingRepository;
 import by.vstu.zamok.restaurant.repository.RestaurantRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.List;
 
-
-
-
+@Service
 @AllArgsConstructor
 public class RestaurantService {
     private final RestaurantRepository restaurantRepository;
     private final RestaurantMapper restaurantMapper;
+    private final RestaurantRatingRepository ratingRepository;
 
     public List<RestaurantDto> findAll() {
         return restaurantMapper.toDto(restaurantRepository.findAll());
@@ -35,5 +39,33 @@ public class RestaurantService {
 
     public List<RestaurantDto> findByName(String name) {
         return restaurantMapper.toDto(restaurantRepository.findAllByNameContainingIgnoreCase(name));
+    }
+
+    public List<RestaurantDto> findPopular(int limit) {
+        var ids = ratingRepository.averageRatings().stream()
+                .map(row -> (Long) row[0])
+                .limit(Math.max(1, limit))
+                .toList();
+        return restaurantMapper.toDto(restaurantRepository.findAllById(ids));
+    }
+
+    public List<RestaurantDto> findTrending(int days, int limit) {
+        LocalDateTime from = LocalDateTime.now().minusDays(Math.max(1, days));
+        var ids = ratingRepository.trendingSince(from).stream()
+                .map(row -> (Long) row[0])
+                .limit(Math.max(1, limit))
+                .toList();
+        return restaurantMapper.toDto(restaurantRepository.findAllById(ids));
+    }
+
+    public void addRating(Long restaurantId, String keycloakId, RatingDto dto) {
+        Restaurant r = restaurantRepository.findById(restaurantId).orElseThrow();
+        RestaurantRating rating = new RestaurantRating();
+        rating.setRestaurant(r);
+        rating.setKeycloakId(keycloakId == null ? "anonymous" : keycloakId);
+        rating.setScore(dto.getScore());
+        rating.setComment(dto.getComment());
+        rating.setCreatedAt(LocalDateTime.now());
+        ratingRepository.save(rating);
     }
 }
