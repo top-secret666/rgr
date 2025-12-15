@@ -34,7 +34,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-    @Bean
     @org.springframework.beans.factory.annotation.Value("${security.require-email-verified:true}")
     private boolean requireVerified;
 
