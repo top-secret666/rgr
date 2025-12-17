@@ -19,13 +19,11 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserDto userDto) {
-        // Проверка на существующего пользователя
         if (userService.findByEmail(userDto.getEmail()) != null) {
             return ResponseEntity
                     .badRequest()
                     .body("Error: Email is already in use!");
         }
-        // Регистрация нового пользователя
         userService.registerNewUserAccount(userDto);
 
         return ResponseEntity.ok("User registered successfully!");
