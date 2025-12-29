@@ -7,6 +7,7 @@
 - Start infra (DBs + Keycloak + Kafka):
 	- `docker compose --profile all up -d`
 - Keycloak UI: `http://localhost:8080` (admin/admin)
+- Realm import: on `docker compose --profile all up -d` Keycloak imports `master-realm.json` automatically.
 - Databases exposed on host:
 	- user-db: `localhost:5432` (db `user_db`, user `user`, pass `password`)
 	- restaurant-db: `localhost:5433` (db `restaurant_db`, user `user`, pass `password`)
@@ -30,6 +31,7 @@
 ### Google Identity Provider (IdP)
 - In Google Cloud Console: Create OAuth 2.0 Client (Web), set Authorized redirect URI to `https://<keycloak-host>/realms/<realm>/broker/google/endpoint`.
 - In Keycloak: Identity Providers → Add provider → Google → set Client ID/Secret. Enable `Sync Mode: IMPORT`.
+- If you use the exported realm config: update `master-realm.json` fields `identityProviders[0].config.clientId/clientSecret` (placeholders are `CHANGE_ME`).
 - Mappers: Ensure `email` is mapped; optionally map Google `email_verified` to Keycloak user and token claim.
 
 ### SMTP for Verification Emails

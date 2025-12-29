@@ -99,7 +99,7 @@ services:
     image: quay.io/keycloak/keycloak:21.0.1
     container_name: keycloak
     restart: unless-stopped
-    command: start-dev
+    command: start-dev --import-realm
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
@@ -113,6 +113,8 @@ services:
       - "8080:8080"
     depends_on:
       - keycloak-db
+    volumes:
+      - ./master-realm.json:/opt/keycloak/data/import/master-realm.json:ro
     networks:
       - app-network
     profiles: ["keycloak", "all"]
