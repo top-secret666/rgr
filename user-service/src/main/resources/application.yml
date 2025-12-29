@@ -35,3 +35,5 @@ keycloak:
   client-id: ${KEYCLOAK_CLIENT_ID:rgr-app}
   admin-username: ${KEYCLOAK_ADMIN_USERNAME:admin}
   admin-password: ${KEYCLOAK_ADMIN_PASSWORD:admin}
+  verify-email-redirect-uri: ${KEYCLOAK_VERIFY_EMAIL_REDIRECT_URI:http://localhost:8084/api/auth/verified}
+  verify-email-lifespan-seconds: ${KEYCLOAK_VERIFY_EMAIL_LIFESPAN_SECONDS:3600}

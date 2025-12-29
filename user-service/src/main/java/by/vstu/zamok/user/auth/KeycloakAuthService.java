@@ -99,10 +99,16 @@ public class KeycloakAuthService {
 
             // 3.1) Send verification email + enforce required action
             try {
+                Integer lifespan = Optional.ofNullable(props.getVerifyEmailLifespanSeconds()).orElse(3600);
                 keycloakAdminClient.realm(realm)
-                        .users()
-                        .get(keycloakUserId)
-                        .executeActionsEmail(List.of("VERIFY_EMAIL"));
+                    .users()
+                    .get(keycloakUserId)
+                    .executeActionsEmail(
+                        props.getVerifyEmailRedirectUri(),
+                        props.getClientId(),
+                        lifespan,
+                        List.of("VERIFY_EMAIL")
+                    );
             } catch (Exception e) {
                 throw new IllegalStateException("Failed to send verification email. Check Keycloak SMTP settings.", e);
             }
@@ -150,6 +156,34 @@ public class KeycloakAuthService {
             return body;
         } catch (HttpClientErrorException e) {
             throw new BadCredentialsException("Invalid credentials", e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> refresh(String refreshToken) {
+        if (refreshToken == null || refreshToken.isBlank()) {
+            throw new IllegalArgumentException("refreshToken must not be blank");
+        }
+
+        String tokenUrl = props.getBaseUrl() + "/realms/" + props.getRealm() + "/protocol/openid-connect/token";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
+        form.add("grant_type", "refresh_token");
+        form.add("client_id", props.getClientId());
+        form.add("refresh_token", refreshToken);
+
+        try {
+            ResponseEntity<Map> response = restTemplate.postForEntity(tokenUrl, new HttpEntity<>(form, headers), Map.class);
+            Map<String, Object> body = response.getBody();
+            if (body == null) {
+                throw new BadCredentialsException("Invalid refresh token");
+            }
+            return body;
+        } catch (HttpClientErrorException e) {
+            throw new BadCredentialsException("Invalid refresh token", e);
         }
     }
 }

@@ -2,11 +2,14 @@ package by.vstu.zamok.user.controller;
 
 import by.vstu.zamok.user.auth.KeycloakAuthService;
 import by.vstu.zamok.user.auth.dto.LoginRequest;
+import by.vstu.zamok.user.auth.dto.RefreshRequest;
 import by.vstu.zamok.user.auth.dto.RegisterRequest;
 import by.vstu.zamok.user.dto.UserDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,11 +24,21 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<UserDto> register(@RequestBody @Valid RegisterRequest request) {
-        return ResponseEntity.ok(authService.register(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(request));
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestBody @Valid RefreshRequest request) {
+        return ResponseEntity.ok(authService.refresh(request.getRefreshToken()));
+    }
+
+    @GetMapping("/verified")
+    public ResponseEntity<?> verified() {
+        return ResponseEntity.ok(java.util.Map.of("message", "Email verified"));
     }
 }

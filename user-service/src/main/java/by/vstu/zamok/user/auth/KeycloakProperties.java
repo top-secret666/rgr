@@ -15,6 +15,12 @@ public class KeycloakProperties {
     /** Public client id used for password grant */
     private String clientId;
 
+    /** Where Keycloak should redirect after email verification */
+    private String verifyEmailRedirectUri;
+
+    /** Action token lifespan in seconds */
+    private Integer verifyEmailLifespanSeconds;
+
     /** Keycloak admin credentials for Admin API */
     private String adminUsername;
     private String adminPassword;
