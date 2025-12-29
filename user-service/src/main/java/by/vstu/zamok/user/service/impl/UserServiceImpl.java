@@ -1,8 +1,10 @@
 package by.vstu.zamok.user.service.impl;
 
 import by.vstu.zamok.user.dto.UserDto;
+import by.vstu.zamok.user.dto.UpdateUserRequest;
 import by.vstu.zamok.user.entity.Role;
 import by.vstu.zamok.user.entity.User;
+import by.vstu.zamok.user.exception.ResourceNotFoundException;
 import by.vstu.zamok.user.mapper.UserMapper;
 import by.vstu.zamok.user.repository.RoleRepository;
 import by.vstu.zamok.user.repository.UserRepository;
@@ -27,20 +29,41 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto findById(Long id) {
-        Optional<User> user = userRepository.findById(id);
-        return user.map(userMapper::toDto).orElse(null);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+        return userMapper.toDto(user);
     }
 
     @Override
     public UserDto findByEmail(String email) {
-        Optional<User> user = userRepository.findByEmail(email);
-        return user.map(userMapper::toDto).orElse(null);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+        return userMapper.toDto(user);
     }
 
     @Override
     public UserDto findByKeycloakId(String keycloakId) {
-        Optional<User> user = userRepository.findByKeycloakId(keycloakId);
-        return user.map(userMapper::toDto).orElse(null);
+        User user = userRepository.findByKeycloakId(keycloakId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with keycloakId: " + keycloakId));
+        return userMapper.toDto(user);
+    }
+
+    @Override
+    public UserDto updateById(Long id, UpdateUserRequest request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+
+        if (request.getFullName() != null) {
+            user.setFullName(request.getFullName());
+        }
+
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+
+        user.setUpdatedAt(Timestamp.from(Instant.now()));
+        User saved = userRepository.save(user);
+        return userMapper.toDto(saved);
     }
 
     @Override

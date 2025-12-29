@@ -1,6 +1,7 @@
 package by.vstu.zamok.user.exception;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,4 +18,5 @@ public class ErrorResponse {
     private String error;
     private LocalDateTime timestamp;
     private String path;
+    private Map<String, String> errors;
 }
