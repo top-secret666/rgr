@@ -4,9 +4,9 @@ server:
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/restaurant_db
-    username: root
-    password: R3l14bl3$3cur1ty!
+    url: jdbc:postgresql://localhost:5433/restaurant_db
+    username: user
+    password: password
   jpa:
     hibernate:
       ddl-auto: validate

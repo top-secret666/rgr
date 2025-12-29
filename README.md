@@ -2,6 +2,22 @@
 
 ## Keycloak + Google SSO + Email Verification
 
+## Quickstart (local)
+
+- Start infra (DBs + Keycloak + Kafka):
+	- `docker compose --profile all up -d`
+- Keycloak UI: `http://localhost:8080` (admin/admin)
+- Databases exposed on host:
+	- user-db: `localhost:5432` (db `user_db`, user `user`, pass `password`)
+	- restaurant-db: `localhost:5433` (db `restaurant_db`, user `user`, pass `password`)
+	- order-db: `localhost:5434` (db `order_db`, user `user`, pass `password`)
+- Build all services:
+	- `mvn -DskipTests -f pom.xml clean package`
+- Run services (3 terminals):
+	- `mvn -f user-service/pom.xml spring-boot:run`
+	- `mvn -f restaurant-service/pom.xml spring-boot:run`
+	- `mvn -f order-service/pom.xml spring-boot:run`
+
 - Prereqs: Keycloak running, a realm (e.g. `master`), SMTP creds, and a Google OAuth client (Client ID/Secret).
 - Issuer: Set `KEYCLOAK_ISSUER_URI` for all services to your realm issuer, e.g. `http://localhost:8080/realms/master`.
 - Email verification: By default enforced. Disable with `security.require-email-verified=false` per service.
