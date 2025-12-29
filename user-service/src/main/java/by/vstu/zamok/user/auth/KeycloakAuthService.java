@@ -30,6 +30,7 @@ import org.springframework.web.client.RestTemplate;
 import java.net.URI;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -61,6 +62,7 @@ public class KeycloakAuthService {
         rep.setUsername(request.getEmail());
         rep.setEmail(request.getEmail());
         rep.setEmailVerified(false);
+        rep.setRequiredActions(new ArrayList<>(List.of("VERIFY_EMAIL")));
         rep.setFirstName(null);
         rep.setLastName(null);
 
@@ -94,6 +96,16 @@ public class KeycloakAuthService {
             // 3) Assign realm role USER (must exist in realm)
             RoleRepresentation userRoleKc = keycloakAdminClient.realm(realm).roles().get("USER").toRepresentation();
             keycloakAdminClient.realm(realm).users().get(keycloakUserId).roles().realmLevel().add(List.of(userRoleKc));
+
+            // 3.1) Send verification email + enforce required action
+            try {
+                keycloakAdminClient.realm(realm)
+                        .users()
+                        .get(keycloakUserId)
+                        .executeActionsEmail(List.of("VERIFY_EMAIL"));
+            } catch (Exception e) {
+                throw new IllegalStateException("Failed to send verification email. Check Keycloak SMTP settings.", e);
+            }
 
             // 4) Sync to local DB
             Role roleUser = roleRepository.findByName("ROLE_USER")
