@@ -20,7 +20,7 @@
 	- `mvn -f order-service/pom.xml spring-boot:run`
 
 - Prereqs: Keycloak running, a realm (e.g. `master`), SMTP creds, and a Google OAuth client (Client ID/Secret).
-- Issuer: Set `KEYCLOAK_ISSUER_URI` for all services to your realm issuer, e.g. `http://localhost:8080/realms/master`.
+- Issuer: Set `KEYCLOAK_ISSUER_URI` for all services to your realm issuer, e.g. `http://localhost:8080/realms/rgr`.
 - Email verification: By default enforced. Disable with `security.require-email-verified=false` per service.
 
 ### Keycloak Realm/Client
@@ -42,7 +42,7 @@
 - user-service: `server.port=8084`. See `user-service/src/main/resources/application.yml` for DB and issuer.
 - restaurant-service, order-service: Similar issuer config and `security.require-email-verified` flag.
 - Env vars:
-	- `KEYCLOAK_ISSUER_URI`: e.g. `http://localhost:8080/realms/master`
+	- `KEYCLOAK_ISSUER_URI`: e.g. `http://localhost:8080/realms/rgr`
 	- `REQUIRE_EMAIL_VERIFIED`: `true|false` to override default per service.
 
 ### Testing

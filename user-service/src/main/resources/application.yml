@@ -24,14 +24,14 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/master}
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/rgr}
 
 security:
   require-email-verified: ${REQUIRE_EMAIL_VERIFIED:true}
 
 keycloak:
   base-url: ${KEYCLOAK_BASE_URL:http://localhost:8080}
-  realm: ${KEYCLOAK_REALM:master}
+  realm: ${KEYCLOAK_REALM:rgr}
   client-id: ${KEYCLOAK_CLIENT_ID:rgr-app}
   admin-username: ${KEYCLOAK_ADMIN_USERNAME:admin}
   admin-password: ${KEYCLOAK_ADMIN_PASSWORD:admin}
