@@ -47,9 +47,10 @@
 
 ### Testing
 - Public endpoints:
-	- user-service: `POST /api/users/register`, `GET /api/users/by-keycloak-id/{keycloakId}`
+	- user-service: `POST /api/users/register`
 	- restaurant-service: public GETs for restaurants/dishes
 - Protected endpoints require a JWT from Keycloak; ensure the token contains `email_verified=true` when enforcement is on.
+	- user-service: `GET /api/users/by-keycloak-id/{keycloakId}` requires JWT (allowed only for the same subject or `ROLE_ADMIN`).
 
 ### Notes
 - All services run as OAuth2 Resource Servers. If you customize roles, adapt `@PreAuthorize` usages accordingly.
