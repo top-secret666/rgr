@@ -17,7 +17,7 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
     enabled: true
-    default-schema: user_schema
+    liquibase-schema: public
   flyway:
     enabled: false
   security:
