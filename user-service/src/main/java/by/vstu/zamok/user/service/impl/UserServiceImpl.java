@@ -11,9 +11,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -64,5 +65,32 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteById(Long id) {
         userRepository.deleteById(id);
+    }
+
+    @Override
+    public List<UserDto> search(String query) {
+        if (query == null || query.isBlank()) {
+            return Collections.emptyList();
+        }
+        return userRepository
+                .findByEmailContainingIgnoreCaseOrFullNameContainingIgnoreCase(query, query)
+                .stream()
+                .map(userMapper::toDto)
+                .toList();
+    }
+
+    @Override
+    public Map<String, Long> registrationStats(int days) {
+        int d = days <= 0 ? 30 : Math.min(days, 180);
+        Timestamp from = Timestamp.from(Instant.now().minus(d, ChronoUnit.DAYS));
+        // Простая реализация на стороне Java: выбираем всех с createdAt >= from и группируем по дате.
+        return userRepository.findAll().stream()
+                .filter(u -> u.getCreatedAt() != null && u.getCreatedAt().after(from))
+                .collect(LinkedHashMap::new,
+                        (map, u) -> {
+                            String day = u.getCreatedAt().toLocalDateTime().toLocalDate().toString();
+                            map.put(day, map.getOrDefault(day, 0L) + 1);
+                        },
+                        LinkedHashMap::putAll);
     }
 }

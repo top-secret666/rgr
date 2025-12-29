@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -41,5 +42,17 @@ public class UserController {
             // Важно: Возвращаем 404, если пользователь еще не синхронизирован в нашей БД
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/search")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> searchUsers(@RequestParam("query") String query) {
+        return ResponseEntity.ok(userService.search(query));
+    }
+
+    @GetMapping("/stats")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> registrationStats(@RequestParam(name = "days", defaultValue = "30") int days) {
+        return ResponseEntity.ok(userService.registrationStats(days));
     }
 }

@@ -1,0 +1,3 @@
+--liquibase formatted sql
+--changeset yourname:order-1.0.2
+-- ALTER TABLE ...; -- добавьте ваши SQL-операции

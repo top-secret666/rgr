@@ -38,3 +38,6 @@ resilience4j:
       userService:
         maxAttempts: 3
         waitDuration: 200ms
+
+security:
+  require-email-verified: ${REQUIRE_EMAIL_VERIFIED:true}

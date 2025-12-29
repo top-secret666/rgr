@@ -2,10 +2,15 @@ package by.vstu.zamok.restaurant.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -25,7 +30,38 @@ public class SecurityConfig {
                     .requestMatchers("/api/restaurants/*/dishes").permitAll()
                     .anyRequest().authenticated()
                 )
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt());
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
         return http.build();
+    }
+
+    @Bean
+    @org.springframework.beans.factory.annotation.Value("${security.require-email-verified:true}")
+    private boolean requireVerified;
+
+    @Bean
+    public Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter() {
+        JwtAuthenticationConverter delegate = new JwtAuthenticationConverter();
+        // Подхват ролей realm_access (Keycloak) для @PreAuthorize
+        delegate.setJwtGrantedAuthoritiesConverter(jwt -> {
+            Object realmAccess = jwt.getClaims().get("realm_access");
+            if (!(realmAccess instanceof java.util.Map<?, ?> map)) return java.util.List.of();
+            Object roles = map.get("roles");
+            if (!(roles instanceof java.util.Collection<?> coll)) return java.util.List.of();
+            return coll.stream()
+                    .filter(String.class::isInstance)
+                    .map(String.class::cast)
+                .map(r -> (org.springframework.security.core.GrantedAuthority)
+                    new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + r.toUpperCase()))
+                .collect(java.util.stream.Collectors.toList());
+        });
+        return jwt -> {
+            if (requireVerified) {
+                Boolean verified = jwt.getClaim("email_verified");
+                if (verified == null || !verified) {
+                    throw new BadCredentialsException("Email is not verified");
+                }
+            }
+            return delegate.convert(jwt);
+        };
     }
 }
