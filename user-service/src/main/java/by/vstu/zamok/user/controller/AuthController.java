@@ -1,35 +1,31 @@
 package by.vstu.zamok.user.controller;
 
+import by.vstu.zamok.user.auth.KeycloakAuthService;
+import by.vstu.zamok.user.auth.dto.LoginRequest;
+import by.vstu.zamok.user.auth.dto.RegisterRequest;
 import by.vstu.zamok.user.dto.UserDto;
-import by.vstu.zamok.user.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/users") // ИЗМЕНЕНО: Путь изменен с /api/auth на /api/users
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@Validated
 public class AuthController {
 
-    private final UserService userService;
-
+    private final KeycloakAuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody @Validated UserDto userDto) {
-        // Проверка на существующего пользователя
-        if (userService.findByEmail(userDto.getEmail()) != null) {
-            return ResponseEntity
-                    .badRequest()
-                    .body("Error: Email is already in use!");
-        }
-        // Регистрация нового пользователя
-        userService.registerNewUserAccount(userDto);
+    public ResponseEntity<UserDto> register(@RequestBody @Valid RegisterRequest request) {
+        return ResponseEntity.ok(authService.register(request));
+    }
 
-        return ResponseEntity.ok("User registered successfully!");
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody @Valid LoginRequest request) {
+        return ResponseEntity.ok(authService.login(request));
     }
 }

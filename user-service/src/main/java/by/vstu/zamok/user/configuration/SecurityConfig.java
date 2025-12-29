@@ -30,7 +30,7 @@ public class SecurityConfig {
     @Order(1)
     public SecurityFilterChain publicEndpointsSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/swagger-ui/**", "/v3/api-docs/**", "/api/users/register")
+                .securityMatcher("/swagger-ui/**", "/v3/api-docs/**", "/api/auth/register", "/api/auth/login")
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
                 .csrf(csrf -> csrf.disable());
         return http.build();

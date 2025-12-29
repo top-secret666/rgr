@@ -100,6 +100,22 @@
       "clientRole" : false,
       "containerId" : "c3cbca13-f7eb-40b4-8318-cfafc499edf5",
       "attributes" : { }
+    }, {
+      "id" : "7b4b0b9d-10c5-4b8a-8d6c-2c3c5e5a1f21",
+      "name" : "USER",
+      "description" : "Application user role",
+      "composite" : false,
+      "clientRole" : false,
+      "containerId" : "c3cbca13-f7eb-40b4-8318-cfafc499edf5",
+      "attributes" : { }
+    }, {
+      "id" : "9f3f6f1b-6c6c-4c33-a7f1-3a0b6c3d2c8e",
+      "name" : "ADMIN",
+      "description" : "Application admin role",
+      "composite" : false,
+      "clientRole" : false,
+      "containerId" : "c3cbca13-f7eb-40b4-8318-cfafc499edf5",
+      "attributes" : { }
     } ],
     "client" : {
       "security-admin-console" : [ ],
@@ -549,6 +565,34 @@
         "multivalued" : "true"
       }
     } ],
+    "defaultClientScopes" : [ "web-origins", "acr", "profile", "roles", "basic", "email" ],
+    "optionalClientScopes" : [ "address", "phone", "organization", "offline_access", "microprofile-jwt" ]
+  }, {
+    "id" : "8c9b2b6a-5e3a-47e9-a3b8-8c9f5c5e8b2a",
+    "clientId" : "rgr-app",
+    "name" : "rgr app",
+    "surrogateAuthRequired" : false,
+    "enabled" : true,
+    "alwaysDisplayInConsole" : false,
+    "clientAuthenticatorType" : "client-secret",
+    "redirectUris" : [ "*" ],
+    "webOrigins" : [ "*" ],
+    "notBefore" : 0,
+    "bearerOnly" : false,
+    "consentRequired" : false,
+    "standardFlowEnabled" : true,
+    "implicitFlowEnabled" : false,
+    "directAccessGrantsEnabled" : true,
+    "serviceAccountsEnabled" : false,
+    "publicClient" : true,
+    "frontchannelLogout" : false,
+    "protocol" : "openid-connect",
+    "attributes" : {
+      "realm_client" : "false"
+    },
+    "authenticationFlowBindingOverrides" : { },
+    "fullScopeAllowed" : true,
+    "nodeReRegistrationTimeout" : 0,
     "defaultClientScopes" : [ "web-origins", "acr", "profile", "roles", "basic", "email" ],
     "optionalClientScopes" : [ "address", "phone", "organization", "offline_access", "microprofile-jwt" ]
   }, {
