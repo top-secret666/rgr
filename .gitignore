@@ -1,0 +1,28 @@
+# Maven
+**/target/
+**/pom.xml.tag
+**/pom.xml.releaseBackup
+**/pom.xml.versionsBackup
+**/release.properties
+**/.mvn/timing.properties
+
+# IDE
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node/Next (front)
+front/node_modules/
+front/.next/
+front/.turbo/
+front/.vercel/
+front/dist/
+
+# Logs
+**/*.log
