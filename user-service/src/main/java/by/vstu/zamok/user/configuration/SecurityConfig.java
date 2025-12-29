@@ -30,7 +30,7 @@ public class SecurityConfig {
     @Order(1)
     public SecurityFilterChain publicEndpointsSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/swagger-ui/**", "/v3/api-docs/**", "/api/users/register", "/api/users/by-keycloak-id/**")
+                .securityMatcher("/swagger-ui/**", "/v3/api-docs/**", "/api/users/register")
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
                 .csrf(csrf -> csrf.disable());
         return http.build();
@@ -53,6 +53,19 @@ public class SecurityConfig {
     @Bean
     public Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter() {
         JwtAuthenticationConverter delegate = new JwtAuthenticationConverter();
+        // Подхват ролей realm_access (Keycloak) для @PreAuthorize
+        delegate.setJwtGrantedAuthoritiesConverter(jwt -> {
+            Object realmAccess = jwt.getClaims().get("realm_access");
+            if (!(realmAccess instanceof java.util.Map<?, ?> map)) return java.util.List.of();
+            Object roles = map.get("roles");
+            if (!(roles instanceof java.util.Collection<?> coll)) return java.util.List.of();
+            return coll.stream()
+                    .filter(String.class::isInstance)
+                    .map(String.class::cast)
+                    .map(r -> (org.springframework.security.core.GrantedAuthority)
+                            new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + r.toUpperCase()))
+                    .collect(java.util.stream.Collectors.toList());
+        });
         return jwt -> {
             if (requireVerified) {
                 Boolean verified = jwt.getClaim("email_verified");
