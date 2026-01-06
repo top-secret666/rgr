@@ -29,10 +29,14 @@
 - Roles: Create realm roles `ROLE_USER`, `ROLE_ADMIN` as needed and map them to users or groups.
 
 ### Google Identity Provider (IdP)
-- In Google Cloud Console: Create OAuth 2.0 Client (Web), set Authorized redirect URI to `https://<keycloak-host>/realms/<realm>/broker/google/endpoint`.
-- In Keycloak: Identity Providers → Add provider → Google → set Client ID/Secret. Enable `Sync Mode: IMPORT`.
-- If you use the exported realm config: update `master-realm.json` fields `identityProviders[0].config.clientId/clientSecret` (placeholders are `CHANGE_ME`).
-- Mappers: Ensure `email` is mapped; optionally map Google `email_verified` to Keycloak user and token claim.
+- In Google Cloud Console: Create OAuth 2.0 Client (Web), set Authorized redirect URI to `http://localhost:8080/realms/rgr/broker/google/endpoint`.
+- This repo supports auto-bootstrapping Google IdP via docker-compose **without committing secrets**:
+	- export env vars:
+		- `export GOOGLE_CLIENT_ID=...`
+		- `export GOOGLE_CLIENT_SECRET=...`
+	- then run infra: `docker compose --profile all up -d`
+	- the `keycloak-init` container will configure (create/update) the Google IdP in realm `rgr`.
+- Manual option: Keycloak UI → Identity Providers → Google → set Client ID/Secret.
 
 ### SMTP for Verification Emails
 - In Keycloak: Realm → Email → configure SMTP (host, port, from, auth). Enable `Verify email` in Realm → Login.

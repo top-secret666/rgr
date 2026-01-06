@@ -120,6 +120,25 @@ services:
       - app-network
     profiles: ["keycloak", "all"]
 
+  keycloak-init:
+    image: curlimages/curl:8.6.0
+    container_name: keycloak-init
+    depends_on:
+      - keycloak
+    environment:
+      KEYCLOAK_BASE_URL: http://keycloak:8080
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KEYCLOAK_REALM: rgr
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+    volumes:
+      - ./keycloak-init.sh:/scripts/keycloak-init.sh:ro
+    entrypoint: ["/bin/sh", "/scripts/keycloak-init.sh"]
+    networks:
+      - app-network
+    profiles: ["keycloak", "all"]
+
   mailhog:
     image: mailhog/mailhog:v1.0.1
     container_name: mailhog
